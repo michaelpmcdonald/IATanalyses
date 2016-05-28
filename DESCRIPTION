@@ -1,0 +1,17 @@
+Package: IATanalyses
+Version: 0.1
+Authors@R: person("Michael", "McDonald", email = "mpmcd@uw.edu",
+                  role = c("aut", "cre"))
+Depends: R (>= 3.2.0)
+License: License: What license is it under?
+LazyData: true
+Title: Implements a variety of analyses of IAT data in support of a
+    mechanistic investigation of the IAT effect
+Date: 2016-05-26
+Imports:
+    dplyr,
+    tidyr,
+    ggplot2,
+    bit64,
+    data.table
+Description: More about what it does (maybe more than one line)
