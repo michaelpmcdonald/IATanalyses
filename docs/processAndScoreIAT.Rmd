@@ -1,0 +1,20 @@
+---
+title: "Score IAT"
+author: "Michael P. McDonald"
+date: "May 28, 2016"
+output: html_document
+---
+
+Data were collected between February and August 2015 from [Project Implicit](http://projectimplicit.org).  Subjects completed the Race IAT along with demographic and background questionnaires.
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
