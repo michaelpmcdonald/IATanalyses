@@ -3,19 +3,22 @@
 
 # Tables generated:
 # tbl_iat : raw IAT experimental data + calculated pairing information
+# tbl_D_calc_statistics_long : basic blockwise statistics to be used in D calculations
+# tbl_D_calc_statistics : blockwise statistics - one line per subject
 
 library(dplyr)
 library(data.table)
 library(bit64)
 library(tidyr)
 library(ggplot2)
+source("R/IATfunctions.R")
 
 # Read in experimental data
 tbl_iat <- fread("extdata/August2015/iat.txt")
 task_names <- c("demo_racea", "demo_raceb", "demo_racec","demo_raced")
 tbl_iat <- filter(tbl_iat, task_name %in% task_names)
 
-# For each subject, map blocks to pairing conditions as follows (number of trials)
+# # For each subject, map blocks to pairing conditions as follows (number of trials)
 # 1 practice good vs bad (20)
 # 2 practice white vs black (20)
 # 3 practice white/good vs black/bad (20)
@@ -24,30 +27,29 @@ tbl_iat <- filter(tbl_iat, task_name %in% task_names)
 # 6 practice white/bad vs black/good (20)
 # 7 test white/bad vs black/good (40)
 
-
 tbl_iat$pairing <- NA
 
-# Pairing 1 (attribute) checks
+# Pairing 1 (attribute)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="Good,Bad"
                       & (tbl_iat$block_number==0 | tbl_iat$block_number==1), 1, tbl_iat$pairing)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="Bad,Good"
                       & (tbl_iat$block_number==0 | tbl_iat$block_number==1), 1, tbl_iat$pairing)
-# Pairing 2 (concept) checks
+# Pairing 2 (concept)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="European American,African American"
                       & (tbl_iat$block_number==0 | tbl_iat$block_number==1), 2, tbl_iat$pairing)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="African American,European American"
                       & (tbl_iat$block_number==0 | tbl_iat$block_number==1), 2, tbl_iat$pairing)
-# Pairing 3 (practice: white/good, african american/bad) checks
+# Pairing 3 (practice: white/good, african american/bad)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="European American/Good,African American/Bad"
                       & (tbl_iat$block_number==2 | tbl_iat$block_number==5), 3, tbl_iat$pairing)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="African American/Bad,European American/Good"
                       & (tbl_iat$block_number==2 | tbl_iat$block_number==5), 3, tbl_iat$pairing)
-# Pairing 4 (test: white/good, african american/bad) checks
+# Pairing 4 (test: white/good, african american/bad)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="European American/Good,African American/Bad"
                       & (tbl_iat$block_number==3 | tbl_iat$block_number==6), 4, tbl_iat$pairing)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="African American/Bad,European American/Good"
                       & (tbl_iat$block_number==3 | tbl_iat$block_number==6), 4, tbl_iat$pairing)
-# Pairing 5 (switch practice) checks
+# Pairing 5 (switch practice)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="Good,Bad"
                       & tbl_iat$block_number==4, 5, tbl_iat$pairing)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="Bad,Good"
@@ -56,12 +58,12 @@ tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="European American,A
                       & tbl_iat$block_number==4, 5, tbl_iat$pairing)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="African American,European American"
                       & tbl_iat$block_number==4, 5, tbl_iat$pairing)
-# Pairing 6 (practice: white/bad, african american/good) checks
+# Pairing 6 (practice: white/bad, african american/good)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="African American/Good,European American/Bad"
                       & (tbl_iat$block_number==2 | tbl_iat$block_number==5), 6, tbl_iat$pairing)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="European American/Bad,African American/Good"
                       & (tbl_iat$block_number==2 | tbl_iat$block_number==5), 6, tbl_iat$pairing)
-# Pairing 7 (test: white/bad, african american/good) checks
+# Pairing 7 (test: white/bad, african american/good)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="African American/Good,European American/Bad"
                       & (tbl_iat$block_number==3 | tbl_iat$block_number==6), 7, tbl_iat$pairing)
 tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="European American/Bad,African American/Good"
@@ -70,7 +72,7 @@ tbl_iat$pairing <- ifelse(tbl_iat$block_pairing_definition=="European American/B
 # Convert milliseconds to seconds
 tbl_iat$trial_latency <- tbl_iat$trial_latency/1000
 
-tbl_D_calc_statistics <- tbl_iat %>%
+tbl_D_calc_statistics_long <- tbl_iat %>%
   select(session_id, pairing, trial_latency) %>%
   group_by(session_id, pairing) %>%
   summarize(mean_latency = mean(trial_latency),
@@ -80,23 +82,23 @@ tbl_D_calc_statistics <- tbl_iat %>%
 
 # Separately spread statistics into wide form and rename the variables appropriately
 
-temp1 <- tbl_D_calc_statistics %>% select(session_id, pairing, mean_latency) %>% spread(pairing, mean_latency)
-temp2 <- tbl_D_calc_statistics %>% select(session_id, pairing, sd_latency) %>% spread(pairing, sd_latency)
-temp3 <- tbl_D_calc_statistics %>% select(session_id, pairing, n_trials) %>% spread(pairing, n_trials)
+temp1 <- tbl_D_calc_statistics_long %>% select(session_id, pairing, mean_latency) %>% spread(pairing, mean_latency)
+temp2 <- tbl_D_calc_statistics_long %>% select(session_id, pairing, sd_latency) %>% spread(pairing, sd_latency)
+temp3 <- tbl_D_calc_statistics_long %>% select(session_id, pairing, n_trials) %>% spread(pairing, n_trials)
 names(temp1) <- c("session_id", paste("lat", 1:7, sep=""))
 names(temp2) <- c("session_id", paste("sd", 1:7, sep=""))
 names(temp3) <- c("session_id", paste("n", 1:7, sep=""))
 
 # Join temporary tables into one wide-form table
-tbl_D_calc_statistics_wide <- temp1 %>% left_join(temp2) %>% left_join(temp3)
+tbl_D_calc_statistics <- temp1 %>% left_join(temp2) %>% left_join(temp3)
 
 # Remove temporary tables
 rm(list=c(paste("temp", 1:3, sep="")))
 
 # Create a variable that indicates whether or not a dataset is complete
-tbl_D_calc_statistics_wide$complete <- !is.na(rowSums(tbl_D_calc_statistics_wide))
+tbl_D_calc_statistics$complete <- !is.na(rowSums(tbl_D_calc_statistics))
 
-tbl_D_calc_statistics_wide$meanLatencyAll <- with(tbl_D_calc_statistics_wide, (lat3+lat4+lat6+lat7)/4)
+tbl_D_calc_statistics$meanLatencyAll <- with(tbl_D_calc_statistics, (lat3+lat4+lat6+lat7)/4)
 
 # # # Perform data reduction based on inclusion/drop criteria
 
@@ -141,19 +143,19 @@ message("Subjects with more than ",
 
 # Perform filtration
 
-tbl_D_calc_statistics_wide <- tbl_D_calc_statistics_wide %>%
+tbl_D_calc_statistics <- tbl_D_calc_statistics %>%
   filter(complete) %>%
   filter(session_id %in% unique(flagUnder300[flagUnder300$flag==FALSE,]$session_id)) %>%
   filter(session_id %in% unique(flagError40[flagError40$flag==FALSE,]$session_id))
 
 message("Proceeding with D score calculation. \nTotal subjects: ",
-        length(tbl_D_calc_statistics_wide$session_id))
+        length(tbl_D_calc_statistics$session_id))
 
 # # IAT calculations #  #
 
-tbl_D_calc_statistics_wide$dPractice <- with(tbl_D_calc_statistics_wide, dScore(lat6, lat3, sd6, sd3, n6, n3))
-tbl_D_calc_statistics_wide$dTest <- with(tbl_D_calc_statistics_wide, dScore(lat7, lat4, sd7, sd4, n7, n4))
-tbl_D_calc_statistics_wide$dAll <- (.5*tbl_D_calc_statistics_wide$dPractice+.5*tbl_D_calc_statistics_wide$dTest)
+tbl_D_calc_statistics$dPractice <- with(tbl_D_calc_statistics, dScore(lat6, lat3, sd6, sd3, n6, n3))
+tbl_D_calc_statistics$dTest <- with(tbl_D_calc_statistics, dScore(lat7, lat4, sd7, sd4, n7, n4))
+tbl_D_calc_statistics$dAll <- (.5*tbl_D_calc_statistics$dPractice+.5*tbl_D_calc_statistics$dTest)
 
 # # For each subject, determine an order
 # # white/good first = 1, black/good first = 2
@@ -166,8 +168,6 @@ tbl_iat$order2 <- NA
 
 tbl_iat$order <- ifelse(tbl_iat$block_number==6 & tbl_iat$pairing == 7, 2, tbl_iat$order)
 tbl_iat$order <- ifelse(tbl_iat$block_number==3 & tbl_iat$pairing == 7, 1, tbl_iat$order)
-length(unique(tbl_iat[tbl_iat$order==1,]$session_id))
-length(unique(tbl_iat[tbl_iat$order==2,]$session_id))
 
 # Subjects with order White/Good first/second, method 1
 subsWG1M1 <- unique(tbl_iat[tbl_iat$order==1,]$session_id)
@@ -178,50 +178,75 @@ subsWG2M1 <- unique(tbl_iat[tbl_iat$order==2,]$session_id)
 
 tbl_iat$order2 <- ifelse(tbl_iat$block_number==3 & tbl_iat$pairing == 4, 2, tbl_iat$order2)
 tbl_iat$order2 <- ifelse(tbl_iat$block_number==6 & tbl_iat$pairing == 4, 1, tbl_iat$order2)
-length(unique(tbl_iat[tbl_iat$order2==1,]$session_id))
-length(unique(tbl_iat[tbl_iat$order2==2,]$session_id))
 
 # Subjects with order White/Good first/second, method 2
 subsWG1M2 <- unique(tbl_iat[tbl_iat$order2==1,]$session_id)
 subsWG2M2 <- unique(tbl_iat[tbl_iat$order2==2,]$session_id)
 
 # List of complete subjects post filtration
-tbl_completeSubjects <- tbl_D_calc_statistics_wide %>% select(session_id)
+tbl_completeSubjects <- tbl_D_calc_statistics %>% select(session_id)
 
 # Check if order calculations worked - sums should be equal
-sum(tbl_completeSubjects$session_id %in% subsWG1M1) == sum(tbl_completeSubjects$session_id %in% subsWG1M2)
-sum(tbl_completeSubjects$session_id %in% subsWG2M1) == sum(tbl_completeSubjects$session_id %in% subsWG2M2)
+# sum(tbl_completeSubjects$session_id %in% subsWG1M1) == sum(tbl_completeSubjects$session_id %in% subsWG1M2)
+# sum(tbl_completeSubjects$session_id %in% subsWG2M1) == sum(tbl_completeSubjects$session_id %in% subsWG2M2)
 
 # Add order variable to IAT wide table - 1 = compatible first, 2 = incompatible first
 
-tbl_D_calc_statistics_wide$order <- ifelse(tbl_D_calc_statistics_wide$session_id %in% subsWG1M1, 1, 2)
+tbl_D_calc_statistics$order <- ifelse(tbl_D_calc_statistics$session_id %in% subsWG1M1, 1, 2)
 
 # Create a relative order variable - that is, order relative to subject's D score sign
 
-tbl_D_calc_statistics_wide$relativeOrder <- ifelse(tbl_D_calc_statistics_wide$dAll >= 0,
-                                                   tbl_D_calc_statistics_wide$order,
-                                                   3-tbl_D_calc_statistics_wide$order)
+tbl_D_calc_statistics$relativeOrder <- ifelse(tbl_D_calc_statistics$dAll >= 0,
+                                                   tbl_D_calc_statistics$order,
+                                                   3-tbl_D_calc_statistics$order)
 
 # Summarize D scores
-summary(tbl_D_calc_statistics_wide$dAll)
-hist(tbl_D_calc_statistics_wide$dAll)
+summary(tbl_D_calc_statistics$dAll)
+hist(tbl_D_calc_statistics$dAll)
 
-tbl_D_calc_statistics_wide %>%
-  filter(session_id %in% subsWG1M1) %>%
-  select(dPractice:dAll) %>%
-  summary()
+compRelFirst <- tbl_D_calc_statistics %>%
+  filter(relativeOrder == 1) %>% select(dPractice:dAll)
+incompRelFirst <- tbl_D_calc_statistics %>%
+  filter(relativeOrder == 2) %>% select(dPractice:dAll)
 
-tbl_D_calc_statistics_wide %>%
-  filter(!(session_id %in% subsWG1M1)) %>%
-  select(dPractice:dAll) %>%
-  summary()
+summary(compRelFirst)
+summary(incompRelFirst)
+
+hist(compRelFirst$dAll)
+hist(incompRelFirst$dAll)
+
+compFirst <- tbl_D_calc_statistics %>%
+  filter(order == 1) %>% select(dPractice:dAll)
+incompFirst <- tbl_D_calc_statistics %>%
+  filter(order == 2) %>% select(dPractice:dAll)
+
+summary(compFirst)
+summary(incompFirst)
+
+hist(compFirst$dAll)
+hist(incompFirst$dAll)
 
 # Test for effects of relative order
-lm(I(abs(dAll))~relativeOrder, data=tbl_D_calc_statistics_wide) %>% summary
-
+# lm(I(abs(dAll))~relativeOrder, data=tbl_D_calc_statistics) %>% summary
+# lm(I(abs(dAll))~order, data=tbl_D_calc_statistics) %>% summary
 
 # Save data file containing IAT results along with all blockwise statistics
-write.table(tbl_D_calc_statistics_wide, "data/iatVerboseOLPSAug2015.dat")
+write.table(tbl_D_calc_statistics, "data/iatVerboseOLPSAug2015.dat")
 
 # Save list of all subjects with complete IAT data
-write.table(tbl_completeSubjects, "completeIATsessionIDsAug2015.dat")
+write.table(tbl_completeSubjects, "data/completeIATsessionIDsAug2015.dat")
+
+# Create stats for DDM analysis from IAT data
+
+tbl_DDM_statistics <- tbl_iat %>%
+  select(session_id, pairing, trial_latency, trial_error) %>%
+  group_by(session_id, pairing) %>%
+  summarize(mean_latency = mean(trial_latency),
+            var_latency = var(trial_latency),
+            n_trials = n(),
+            accuracy_rate = 1-mean(trial_error)) %>%
+  filter(session_id %in% tbl_completeSubjects$session_id)
+
+
+
+

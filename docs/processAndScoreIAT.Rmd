@@ -5,9 +5,9 @@ date: "May 28, 2016"
 output: html_document
 ---
 
-Data were collected between February and August 2015 from [Project Implicit](http://projectimplicit.org).  Subjects completed the Race IAT along with demographic and background questionnaires.
+Data were collected between February and August 2015 from [Project Implicit](http://projectimplicit.org).  Subjects completed the African American / European American Race IAT along with demographic and background questionnaires.
 
-```{r}
+```{r loadData, echo=FALSE}
 summary(cars)
 ```
 
