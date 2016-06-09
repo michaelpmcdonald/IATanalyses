@@ -238,15 +238,30 @@ write.table(tbl_completeSubjects, "data/completeIATsessionIDsAug2015.dat")
 
 # Create stats for DDM analysis from IAT data
 
-tbl_DDM_statistics <- tbl_iat %>%
+tbl_DDM_statistics_long <- tbl_iat %>%
   select(session_id, pairing, trial_latency, trial_error) %>%
+  filter(session_id %in% tbl_completeSubjects$session_id) %>%
   group_by(session_id, pairing) %>%
   summarize(mean_latency = mean(trial_latency),
             var_latency = var(trial_latency),
             n_trials = n(),
-            accuracy_rate = 1-mean(trial_error)) %>%
-  filter(session_id %in% tbl_completeSubjects$session_id)
+            accuracy_rate = 1-mean(trial_error))
 
+temp1 <- tbl_DDM_statistics_long %>% select(session_id, pairing, mean_latency) %>% spread(pairing, mean_latency)
+temp2 <- tbl_DDM_statistics_long %>% select(session_id, pairing, var_latency) %>% spread(pairing, var_latency)
+temp3 <- tbl_DDM_statistics_long %>% select(session_id, pairing, accuracy_rate) %>% spread(pairing, accuracy_rate)
+temp4 <- tbl_DDM_statistics_long %>% select(session_id, pairing, n_trials) %>% spread(pairing, n_trials)
 
+names(temp1) <- c("session_id", paste("lat", 1:7, sep=""))
+names(temp2) <- c("session_id", paste("var", 1:7, sep=""))
+names(temp3) <- c("session_id", paste("acc", 1:7, sep=""))
+names(temp4) <- c("session_id", paste("n", 1:7, sep=""))
 
+# Join temporary tables into one wide-form table
+tbl_DDM_statistics <- temp1 %>% left_join(temp2) %>% left_join(temp3) %>% left_join(temp4)
 
+# Remove temporary tables
+rm(list=c(paste("temp", 1:4, sep="")))
+
+# Save the file to be used by DDM analyses
+write.table(tbl_DDM_statistics, "data/DDMstatisticsAug2015.dat", row.names = FALSE)
