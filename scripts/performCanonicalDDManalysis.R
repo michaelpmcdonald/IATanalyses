@@ -41,7 +41,6 @@ vaterTestIncong$block <- 7
 vaterTestIncong$practiceOrTest <- "test"
 vaterTestIncong$pairingType <- "White/Bad"
 
-
 DDMstats <- rbindlist(list(vaterPracCong,vaterPracIncong,vaterTestCong,vaterTestIncong)) %>% arrange(., block)
 
 summaries <- DDMstats %>%
@@ -54,50 +53,53 @@ DDMv <- summarySE(DDMstats, measurevar="v", groupvars=c("practiceOrTest","pairin
 DDMa <- summarySE(DDMstats, measurevar="a", groupvars=c("practiceOrTest","pairingType"), na.rm=TRUE)
 DDMter <- summarySE(DDMstats, measurevar="ter", groupvars=c("practiceOrTest","pairingType"), na.rm=TRUE)
 
-xtable(DDMv)
-
-ggplot(DDMv, aes(x=pairingType, y=v, fill=practiceOrTest)) +
-  geom_bar(position=position_dodge(), stat="identity") +
-  geom_errorbar(aes(ymin=v-2*se, ymax=v+2*se),
-                width=.2,                    # Width of the error bars
-                position=position_dodge(.9))
-DDMa
-
-ggplot(DDMa, aes(x=pairingType, y=a, fill=practiceOrTest)) +
-  geom_bar(position=position_dodge(), stat="identity") +
-  geom_errorbar(aes(ymin=a-2*se, ymax=a+2*se),
-                width=.2,                    # Width of the error bars
-                position=position_dodge(.9))
-DDMter
-
-ggplot(DDMter, aes(x=pairingType, y=ter, fill=practiceOrTest)) +
-  geom_bar(position=position_dodge(), stat="identity") +
-  geom_errorbar(aes(ymin=ter-2*se, ymax=ter+2*se),
-                width=.2,                    # Width of the error bars
-                position=position_dodge(.9))
-
-write.table(DDMstats, "../data/DDMOnlyAug2015.dat")
-
-DDMstats$deltaV <- (.5*DDMstats$v_PCon+.5*DDMstats$v_TCon)- (.5*DDMstats$v_PInc+.5*DDMstats$v_TInc)
-cor.test(DDMstats$deltaV, DDMstats$dAll)
-
-# Merge explicit data with experimental data
-DDMstats <- merge(DDMstats, explicit, by.x = "session_id", by.y = "session_id")
-
-# Save out one-line-per-subject file
-write.table(DDMstats, "~/tabula/projects/IATdata/olps_Aug2015.dat")
-
-cor.test(DDMstats$deltaV, DDMstats$tDiff, use="complete")
-cor.test(DDMstats$dAll, DDMstats$tDiff, use="complete")
-
-white <- filter(DDMstats, raceomb == "6")
-black <- filter(DDMstats, raceomb == "5")
-
-hist(white$dAll)
-hist(white$deltaV)
-cor.test(white$dAll, white$deltaV)
+# Save out generated stats
+# write.table(DDMstats, "data/DDMOnlyAug2015.dat")
 
 
-hist(black$dAll)
-hist(black$deltaV)
-cor.test(black$dAll, black$deltaV)
+
+
+
+
+
+#DDMstats$deltaV <- (.5*DDMstats$v_PCon+.5*DDMstats$v_TCon)- (.5*DDMstats$v_PInc+.5*DDMstats$v_TInc)
+#cor.test(DDMstats$deltaV, DDMstats$dAll)
+
+
+
+# cor.test(DDMstats$deltaV, DDMstats$tDiff, use="complete")
+# cor.test(DDMstats$dAll, DDMstats$tDiff, use="complete")
+#
+# white <- filter(DDMstats, raceomb == "6")
+# black <- filter(DDMstats, raceomb == "5")
+#
+# hist(white$dAll)
+# hist(white$deltaV)
+# cor.test(white$dAll, white$deltaV)
+#
+#
+# hist(black$dAll)
+# hist(black$deltaV)
+# cor.test(black$dAll, black$deltaV)
+#
+# xtable(DDMv)
+#
+# ggplot(DDMv, aes(x=pairingType, y=v, fill=practiceOrTest)) +
+#   geom_bar(position=position_dodge(), stat="identity") +
+#   geom_errorbar(aes(ymin=v-2*se, ymax=v+2*se),
+#                 width=.2,                    # Width of the error bars
+#                 position=position_dodge(.9))
+# DDMa
+#
+# ggplot(DDMa, aes(x=pairingType, y=a, fill=practiceOrTest)) +
+#   geom_bar(position=position_dodge(), stat="identity") +
+#   geom_errorbar(aes(ymin=a-2*se, ymax=a+2*se),
+#                 width=.2,                    # Width of the error bars
+#                 position=position_dodge(.9))
+# DDMter
+#
+# ggplot(DDMter, aes(x=pairingType, y=ter, fill=practiceOrTest)) +
+#   geom_bar(position=position_dodge(), stat="identity") +
+#   geom_errorbar(aes(ymin=ter-2*se, ymax=ter+2*se),
+#                 width=.2,                    # Width of the error bars
+#                 position=position_dodge(.9))

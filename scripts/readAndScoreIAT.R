@@ -151,7 +151,7 @@ tbl_D_calc_statistics <- tbl_D_calc_statistics %>%
 message("Proceeding with D score calculation. \nTotal subjects: ",
         length(tbl_D_calc_statistics$session_id))
 
-# # IAT calculations #  #
+# # IAT calculations # #
 
 tbl_D_calc_statistics$dPractice <- with(tbl_D_calc_statistics, dScore(lat6, lat3, sd6, sd3, n6, n3))
 tbl_D_calc_statistics$dTest <- with(tbl_D_calc_statistics, dScore(lat7, lat4, sd7, sd4, n7, n4))

@@ -9,7 +9,7 @@ Presented here are drift diffusion model parameters generated from Race IAT data
 
 Note:  All error bars represent +/- 2 SE.
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r initialize, echo=FALSE, warning=FALSE, message=FALSE}
 library(dplyr)
 library(data.table)
 library(bit64)
@@ -17,52 +17,17 @@ library(tidyr)
 library(ggplot2)
 library(xtable)
 library(knitr)
-source("../R/DDMfunctions.R")
-source("../R/summarySE.R")
+library(pander)
+setwd("..")
+source("R/DDMfunctions.R")
+source("R/summarySE.R")
+source("scripts/performDDManalysis.R")
 
-DDMstats <- fread("../data/DDMstatisticsAug2015.dat")
+```
 
-vaterPracCong <- get.vaTer(DDMstats$session_id, DDMstats$acc3, DDMstats$var3, DDMstats$lat3)
-names(vaterPracCong) <- c("session_id", "v", "a", "ter")
-vaterPracCong$block <- 3
-vaterPracCong$practiceOrTest <- "practice"
-vaterPracCong$pairingType <- "White/Good"
+```{r basicPlots, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
 
-vaterPracIncong <- get.vaTer(DDMstats$session_id, DDMstats$acc6, DDMstats$var6, DDMstats$lat6)
-names(vaterPracIncong) <- c("session_id", "v", "a", "ter")
-vaterPracIncong$block <- 6
-vaterPracIncong$practiceOrTest <- "practice"
-vaterPracIncong$pairingType <- "White/Bad"
-
-vaterTestCong <- get.vaTer(DDMstats$session_id, DDMstats$acc4, DDMstats$var4, DDMstats$lat4)
-names(vaterTestCong) <- c("session_id", "v", "a", "ter")
-vaterTestCong$block <- 4
-vaterTestCong$practiceOrTest <- "test"
-vaterTestCong$pairingType <- "White/Good"
-
-vaterTestIncong <- get.vaTer(DDMstats$session_id, DDMstats$acc7, DDMstats$var7, DDMstats$lat7)
-names(vaterTestIncong) <- c("session_id", "v", "a", "ter")
-vaterTestIncong$block <- 7
-vaterTestIncong$practiceOrTest <- "test"
-vaterTestIncong$pairingType <- "White/Bad"
-
-
-DDMstats <- rbindlist(list(vaterPracCong,vaterPracIncong,vaterTestCong,vaterTestIncong)) %>% arrange(., block)
-
-summaries <- DDMstats %>%
-  group_by(block) %>%
-  summarise(vbar = mean(v, na.rm=TRUE),
-            terbar = mean(ter, na.rm = TRUE),
-            abar = mean(a, na.rm = TRUE))
-
-DDMv <- summarySE(DDMstats, measurevar="v", groupvars=c("practiceOrTest","pairingType"), na.rm=TRUE)
-DDMa <- summarySE(DDMstats, measurevar="a", groupvars=c("practiceOrTest","pairingType"), na.rm=TRUE)
-DDMter <- summarySE(DDMstats, measurevar="ter", groupvars=c("practiceOrTest","pairingType"), na.rm=TRUE)
-
-#table_DDMv <- xtable(DDMv)
-#print.xtable(table_DDMv, type="latex")
-
-kable(DDMv)
+pander(select(DDMv, -ci))
 ggplot(DDMv, aes(x=pairingType, y=v, fill=practiceOrTest)) +
   geom_bar(position=position_dodge(), stat="identity") +
   geom_errorbar(aes(ymin=v-2*se, ymax=v+2*se),
