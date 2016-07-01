@@ -24,7 +24,7 @@ DDMdata$resp <- factor(DDMdata$resp)
 
 set.seed(0)
 
-DDMsmall <- filter(DDMdata, session_id %in% sample(unique(DDMdata$session_id),1))
+DDMsmall <- filter(DDMdata, session_id %in% sample(unique(DDMdata$session_id),1000))
 
 subjects <- unique(DDMsmall$session_id)
 
@@ -41,11 +41,12 @@ for(i in 1:length(subjects)){
     if(!is.nan(diff)){
       data[data$resp=="lower",]$q <- data[data$resp=="lower",]$q-diff
     }
+    data <- filter(data, q < 3 & q > .1)
     if(wiener_deviance(x=c(1, .1, .1, 1), dat=data)==Inf) {
-      message("Wiener deviance for subject ", subject,", pairing ", j, " could not be evaluated.")
+      message("Wiener deviance for subject ", subjects[i],", pairing ", j, " could not be evaluated.")
       next()
     }
-    fit <- optim(c(1, .001, .001, 1), wiener_deviance, dat=data, method="Nelder-Mead")
+    fit <- optim(c(1, .1, .1, 1), wiener_deviance, dat=data, method="Nelder-Mead")
 DDMresults[i*7-(7-j),2:6] <- c(j, fit$par[1], fit$par[2], fit$par[3], fit$par[4])
   }
 }
