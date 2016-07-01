@@ -6,11 +6,13 @@
 # This script requires: tbl_iat and tbl_completeSubjects from readAndScoreIAT.R
 
 library(RWiener)
-library(dplyr)
-library(data.table)
 library(bit64)
 library(tidyr)
 library(ggplot2)
+library(data.table)
+library(dplyr)
+library(dtplyr)
+source("R/summarySE.R")
 
 DDMdata <- tbl_iat %>%
   filter(session_id %in% tbl_completeSubjects$session_id) %>%
@@ -22,7 +24,7 @@ DDMdata$resp <- factor(DDMdata$resp)
 
 set.seed(0)
 
-DDMsmall <- filter(DDMdata, session_id %in% sample(unique(DDMdata$session_id),1000))
+DDMsmall <- filter(DDMdata, session_id %in% sample(unique(DDMdata$session_id),100))
 
 subjects <- unique(DDMsmall$session_id)
 
@@ -33,7 +35,7 @@ for(i in 1:length(subjects)){
   for(j in 1:7){
     data <- DDMsmall %>% filter(session_id == subjects[i] & pairing == j) %>%
       select(q, resp)
-    if(wiener_deviance(x=c(1, .001, .001, 1), dat=data)==Inf) {
+    if(wiener_deviance(x=c(1, .1, .1, 1), dat=data)==Inf) {
       message("Wiener deviance for subject ", subject,", pairing ", j, " could not be evaluated.")
       next()
     }

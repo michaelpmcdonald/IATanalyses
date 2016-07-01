@@ -6,12 +6,14 @@
 # tbl_D_calc_statistics_long : basic blockwise statistics to be used in D calculations
 # tbl_D_calc_statistics : blockwise statistics - one line per subject
 
-library(dplyr)
-library(data.table)
 library(bit64)
 library(tidyr)
 library(ggplot2)
+library(dplyr)
+library(data.table)
+library(dtplyr)
 source("R/IATfunctions.R")
+# detach("package:plyr", unload=TRUE)
 
 # Read in experimental data
 tbl_iat <- fread("extdata/August2015/iat.txt")
