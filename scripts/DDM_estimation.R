@@ -14,7 +14,8 @@ library(ggplot2)
 
 DDMdata <- tbl_iat %>%
   filter(session_id %in% tbl_completeSubjects$session_id) %>%
-  select(session_id, pairing, q=trial_latency, resp=trial_error)
+  select(session_id, pairing, q=trial_latency, resp=trial_error) %>%
+  filter(q >= .1 & q < 3)
 
 DDMdata$resp <- ifelse(DDMdata$resp == 0, "upper", "lower")
 DDMdata$resp <- factor(DDMdata$resp)
@@ -52,24 +53,24 @@ delta <- summarySE(DDMresults, measurevar = "delta", groupvars=c("pairing"), na.
 ggplot(alpha, aes(x=pairing, y=alpha)) +
   geom_bar(position=position_dodge(), stat="identity") +
   geom_errorbar(aes(ymin=alpha-2*se, ymax=alpha+2*se),
-                width=.2,                    # Width of the error bars
+                width=.2,
                 position=position_dodge(.9))
 
 ggplot(tau, aes(x=pairing, y=tau)) +
   geom_bar(position=position_dodge(), stat="identity") +
   geom_errorbar(aes(ymin=tau-2*se, ymax=tau+2*se),
-                width=.2,                    # Width of the error bars
+                width=.2,
                 position=position_dodge(.9))
 
 ggplot(beta, aes(x=pairing, y=beta)) +
   geom_bar(position=position_dodge(), stat="identity") +
   geom_errorbar(aes(ymin=beta-2*se, ymax=beta+2*se),
-                width=.2,                    # Width of the error bars
+                width=.2,
                 position=position_dodge(.9))
 
 ggplot(delta, aes(x=pairing, y=delta)) +
   geom_bar(position=position_dodge(), stat="identity") +
   geom_errorbar(aes(ymin=delta-2*se, ymax=delta+2*se),
-                width=.2,                    # Width of the error bars
+                width=.2,
                 position=position_dodge(.9))
 
