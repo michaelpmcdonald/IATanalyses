@@ -98,6 +98,9 @@ rm(list=c(paste("temp", 1:3, sep="")))
 # Create a variable that indicates whether or not a dataset is complete
 tbl_D_calc_statistics$complete <- !is.na(rowSums(tbl_D_calc_statistics))
 
+# Check if someone is complete
+tbl_D_calc_statistics[tbl_D_calc_statistics$session_id==2616738347,]$complete
+
 tbl_D_calc_statistics$meanLatencyAll <- with(tbl_D_calc_statistics, (lat3+lat4+lat6+lat7)/4)
 
 # # # Perform data reduction based on inclusion/drop criteria
