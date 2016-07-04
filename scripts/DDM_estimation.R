@@ -24,13 +24,13 @@ DDMdata$resp <- factor(DDMdata$resp)
 
 set.seed(0)
 
-DDMsmall <- filter(DDMdata, session_id %in% sample(unique(DDMdata$session_id),1))
+DDMsmall <- filter(DDMdata, session_id %in% sample(unique(DDMdata$session_id),10))
 
 subjects <- unique(DDMsmall$session_id)
 
 DDMresults <- matrix(rep(NA, length(subjects)*7*6), nrow=length(subjects)*7)
 DDMresults[,1] <- as.numeric(rep(subjects, each = 7))
-
+start <- proc.time()
 for(i in 1:length(subjects)){
   for(j in 1:7){
     data <- DDMsmall %>% filter(session_id == subjects[i] & pairing == j) %>%
@@ -49,6 +49,7 @@ for(i in 1:length(subjects)){
 DDMresults[i*7-(7-j),2:6] <- c(j, fit$par[1], fit$par[2], fit$par[3], fit$par[4])
   }
 }
+proc.time()-start
 
 DDMresults <- data.frame(DDMresults)
 names(DDMresults) <- c("session_id","pairing","alpha","tau","beta","delta")

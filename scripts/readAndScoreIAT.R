@@ -236,10 +236,10 @@ hist(incompFirst$dAll)
 # lm(I(abs(dAll))~order, data=tbl_D_calc_statistics) %>% summary
 
 # Save data file containing IAT results along with all blockwise statistics
-write.table(tbl_D_calc_statistics, "data/iatVerboseOLPSAug2015.dat")
+write.csv(tbl_D_calc_statistics, "data/iatVerboseOLPSAug2015.csv")
 
 # Save list of all subjects with complete IAT data
-write.table(tbl_completeSubjects, "data/completeIATsessionIDsAug2015.dat")
+write.csv(tbl_completeSubjects, "data/completeIATsessionIDsAug2015.csv", row.names=FALSE)
 
 # Create stats for DDM analysis from IAT data
 
@@ -268,5 +268,9 @@ tbl_DDM_statistics <- temp1 %>% left_join(temp2) %>% left_join(temp3) %>% left_j
 # Remove temporary tables
 rm(list=c(paste("temp", 1:4, sep="")))
 
+# Save tbl_iat
+
+write.csv(tbl_iat, "data/tbl_iat.csv", row.names=FALSE)
+
 # Save the file to be used by DDM analyses
-write.table(tbl_DDM_statistics, "data/DDMstatisticsAug2015.dat", row.names = FALSE)
+write.csv(tbl_DDM_statistics, "data/DDMstatisticsAug2015.csv", row.names = FALSE)
