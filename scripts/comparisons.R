@@ -14,10 +14,8 @@ library(dplyr)
 library(dtplyr)
 library(IATanalyses)
 library(multidplyr)
-#source("R/summarySE.R")
 
-
-tbl_iat <- read.csv("data/tbl_iat.csv")
+#tbl_iat <- read.csv("data/tbl_iat.csv")
 
 DDMdata <- tbl_iat %>%
   filter(session_id %in% tbl_completeSubjects$session_id) %>%
@@ -29,7 +27,7 @@ DDMdata$resp <- factor(DDMdata$resp)
 
 set.seed(0)
 
-DDMsmall <- filter(DDMdata, session_id %in% sample(unique(DDMdata$session_id),3))
+DDMsmall <- filter(DDMdata, session_id %in% sample(unique(DDMdata$session_id),5000))
 
 class(DDMsmall) <- 'data.frame'
 
@@ -47,15 +45,15 @@ happy <- DDMsmallMulti %>%
 doMC_time <- proc.time()-doMC_start
 
 MCresults <- collect(happy)
+write.csv(MCresults, "MCresults5000.csv", row.names=FALSE)
+do_start <- proc.time()
+happy <- DDMsmall %>%
+  group_by(session_id, pairing) %>%
+  select(q, resp) %>%
+  do(DDMestimate(.))
+do_time <- proc.time()-do_start
 
-# do_start <- proc.time()
-# happy <- DDMsmall %>%
-#   group_by(session_id, pairing) %>%
-#   select(q, resp) %>%
-#   do(DDMestimate(.))
-# do_time <- proc.time()-do_start
-#
-# print(do_time)
+print(do_time)
 print(doMC_time)
 
 

@@ -8,10 +8,11 @@ DDMestimate <- function(df){
   difference <- mean(df[df$resp=="lower",]$q) - mean(df[df$resp=="upper",]$q)
   if(!is.nan(difference)){
     df[df$resp=="lower",]$q <- df[df$resp=="lower",]$q-difference
+    df <- filter(df, q > .1 & q < 3)
   }
   if(wiener_deviance(x=c(1, .1, .1, 1), dat=df)==Inf) {
-    message("Wiener deviance for subject ", subject,", pairing ", j, " could not be evaluated.")
-    return(rep(NA, 4))
+#    message("Wiener deviance for subject ", subject,", pairing ", j, " could not be evaluated.")
+    return(data.frame(NA, NA, NA, NA))
   }
   fit <- optim(c(1, .001, .001, 1), wiener_deviance, dat=df, method="Nelder-Mead")
   results <- paste(fit$par[1:4], letters[1:4], sep="_")
