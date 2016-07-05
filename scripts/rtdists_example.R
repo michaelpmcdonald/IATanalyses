@@ -1,7 +1,7 @@
 library(rtdists)
 
 ## identical calls (but different random values)
-rt1 <- rdiffusion(500, a=1, v=2, t0=0.5)
+rt1 <- rdiffusion(40, a=1, v=2, t0=0.5)
 head(rt1)
 rt2 <- rdiffusion(500, a=1, v=2, t0=0.5, z=0.5, d=0, sz=0, sv=0, st0=0)
 head(rt2)

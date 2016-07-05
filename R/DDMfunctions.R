@@ -40,7 +40,6 @@ diffusionEstimate <- function(df){
   class(df) <- 'data.frame'
   df <- df %>% select(rt = q, response = resp)
   print(head(df))
-  names(start) <- c("a", "v", "t0", "sz", "st0", "sv")
   # Need to adjust the error trials since they include an extra button press
   # adjustment is mean(incorrect)-mean(correct)
   difference <- mean(df[df$response=="lower",]$rt) - mean(df[df$response=="upper",]$rt)
