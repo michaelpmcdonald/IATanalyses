@@ -19,10 +19,47 @@ DDMestimate <- function(df){
   return(data.frame(results))
 }
 
+ll_diffusion <- function(pars, rt, boundary)
+{
+  densities <- tryCatch(
+    ddiffusion(rt, boundary=boundary,
+               a=pars[1], v=pars[2], t0=pars[3],
+               z=0.5, sz=pars[4],
+               st0=pars[5], sv=pars[6]),
+    error = function(e) 0)
+  if (any(densities == 0)) return(1e6)
+  return(-sum(log(densities)))
+}
 
 #   Build and Reload Package:  'Cmd + Shift + B'
 #   Check Package:             'Cmd + Shift + E'
 #   Test Package:              'Cmd + Shift + T'
+
+diffusionEstimate <- function(df){
+  # print(head(df))
+  class(df) <- 'data.frame'
+  df <- df %>% select(rt = q, response = resp)
+  print(head(df))
+  names(start) <- c("a", "v", "t0", "sz", "st0", "sv")
+  # Need to adjust the error trials since they include an extra button press
+  # adjustment is mean(incorrect)-mean(correct)
+  difference <- mean(df[df$response=="lower",]$rt) - mean(df[df$response=="upper",]$rt)
+  if(!is.nan(difference)){
+    df[df$response=="lower",]$rt <- df[df$response=="lower",]$rt-difference
+    df <- filter(df, rt > .1 & rt < 3)
+  }
+  results <- nlminb(start=c(1, 1, .1, .25, .25, .25), ll_diffusion, lower = 0, rt=df$rt, boundary=df$response)
+  # if(wiener_deviance(x=c(1, .1, .1, 1), dat=df)==Inf) {
+  #   #    message("Wiener deviance for subject ", subject,", pairing ", j, " could not be evaluated.")
+  #   return(data.frame(NA, NA, NA, NA))
+  # }
+  # fit <- optim(c(1, .001, .001, 1), wiener_deviance, dat=df, method="Nelder-Mead")
+  results <- as.character(paste(round(results$par[1:6],digits=3), letters[1:6], sep="_"))
+  return(data.frame(results))
+}
+
+
+
 
 get.vaTer <- function(ID, Pc, VRT, MRT, s=0.1) {
   s2 = s^2

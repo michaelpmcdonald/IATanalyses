@@ -270,7 +270,7 @@ rm(list=c(paste("temp", 1:4, sep="")))
 
 # Save tbl_iat
 
-write.csv(tbl_iat, "data/tbl_iat.csv", row.names=FALSE)
+write.csv(tbl_iat, "data/tbl_iat.csv", row.names=FALSE, sep = ",")
 
 # Save the file to be used by DDM analyses
 write.csv(tbl_DDM_statistics, "data/DDMstatisticsAug2015.csv", row.names = FALSE)
