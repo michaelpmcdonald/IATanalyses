@@ -40,14 +40,13 @@ class(DDMdata) <- 'data.frame'
 
 set.seed(0)
 
-DDMsmall <- filter(DDMdata, subject %in% sample(unique(DDMdata$subject),3))
+DDMsmall <- filter(DDMdata, subject %in% sample(unique(DDMdata$subject),5000))
 
 class(DDMsmall) <- 'data.frame'
 
-DDMMulti <- partition(DDMsmall, subject)
+DDMMulti <- partition(DDMdata, subject)
 cluster_library(DDMMulti, "IATanalyses")
 cluster_library(DDMMulti, "rtdists")
-cluster_library(DDMMulti, "bit64")
 cluster_library(DDMMulti, "dplyr")
 
 # start <- c(runif(2, 0.5, 3), 0.1, runif(3, 0, 0.5))
@@ -65,11 +64,13 @@ write.csv(MCresults, "extdata/RatcliffResults.csv", row.names=FALSE)
 
 message("Parameter estimation completed in ", round(doMC_time[3],3), " seconds.")
 
-do_start <- proc.time()
-cow <- DDMsmall %>%
-  group_by(subject, pairing) %>%
-  select(q, resp) %>%
-  do(diffusionEstimate(.))
-do_time <- do_start-proc.time()
+
+
+# do_start <- proc.time()
+# cow <- DDMsmall %>%
+#   group_by(subject, pairing) %>%
+#   select(q, resp) %>%
+#   do(diffusionEstimate(.))
+# do_time <- do_start-proc.time()
 
 

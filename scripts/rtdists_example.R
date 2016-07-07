@@ -1,5 +1,5 @@
 library(rtdists)
-
+set.seed(0)
 ## identical calls (but different random values)
 rt1 <- rdiffusion(40, a=1, v=2, t0=0.5)
 head(rt1)
@@ -16,7 +16,7 @@ sum(log(ddiffusion(rt2$rt, rt2$response, a=1, v=2, t0=0.5)))
 ll_diffusion <- function(pars, rt, boundary)
 {
   densities <- tryCatch(
-    ddiffusion(rt, boundary=boundary,
+    ddiffusion(rt, boundary,
                a=pars[1], v=pars[2], t0=pars[3],
                z=0.5, sz=pars[4],
                st0=pars[5], sv=pars[6]),

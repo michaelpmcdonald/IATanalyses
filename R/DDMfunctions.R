@@ -22,7 +22,7 @@ DDMestimate <- function(df){
 ll_diffusion <- function(pars, rt, boundary)
 {
   densities <- tryCatch(
-    ddiffusion(rt, boundary=boundary,
+    ddiffusion(rt, boundary,
                a=pars[1], v=pars[2], t0=pars[3],
                z=0.5, sz=pars[4],
                st0=pars[5], sv=pars[6]),
@@ -47,7 +47,8 @@ diffusionEstimate <- function(df){
     df[df$response=="lower",]$rt <- df[df$response=="lower",]$rt-difference
     df <- filter(df, rt > .1 & rt < 3)
   }
-  results <- nlminb(start=c(1, 1, .1, .25, .25, .25), ll_diffusion, lower = 0, rt=df$rt, boundary=df$response)
+  results <- optim(c(1, 1, .1, .25, .25, .25), ll_diffusion, rt=df$rt, boundary=df$response, method="Nelder-Mead")
+  print(results$par)
   # if(wiener_deviance(x=c(1, .1, .1, 1), dat=df)==Inf) {
   #   #    message("Wiener deviance for subject ", subject,", pairing ", j, " could not be evaluated.")
   #   return(data.frame(NA, NA, NA, NA))
