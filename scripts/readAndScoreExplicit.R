@@ -8,7 +8,7 @@ library(ggplot2)
 # measures, including demographics, Black/White thermometer ratings (i.e. "How warm do you
 # feel toward Black people?"), and a direct favorability rating of Black vs. White.
 
-explicit <- data.table::fread("../extdata/August2015/explicit.txt")
+explicit <- data.table::fread("extdata/August2015/explicit.txt")
 
 explicit <-  explicit %>%
   filter(attempt == 1) %>%
@@ -30,4 +30,4 @@ explicit$tBlack <- explicit$tBlack-1
 explicit$tWhite <- explicit$tWhite-1
 explicit$tDiff <- explicit$tWhite - explicit$tBlack
 
-write.table(explicit, "../data/explicitOnlyOLPSAug2015.dat")
+write.csv(explicit, "extdata/explicitOnlyOLPSAug2015.csv", row.names=FALSE)

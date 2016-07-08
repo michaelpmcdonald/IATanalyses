@@ -1,4 +1,10 @@
 .Rproj.user
+.pdf
+.html
 .Rhistory
 .RData
+.csv
+/extdata
+/data
+.dat
 .Ruserdata
