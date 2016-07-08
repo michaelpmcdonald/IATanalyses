@@ -1,10 +1,12 @@
 .Rproj.user
-.pdf
-.html
+*.Rproj
+.Rbuildignore
+*.pdf
+*.html
 .Rhistory
 .RData
-.csv
+*.csv
 /extdata
 /data
-.dat
+*.dat
 .Ruserdata
